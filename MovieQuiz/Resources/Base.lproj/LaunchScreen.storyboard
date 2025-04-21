@@ -23,10 +23,10 @@
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="uxJ-TW-4Pz" firstAttribute="bottom" secondItem="Ze5-6b-2t3" secondAttribute="bottom" id="8ad-go-pi1"/>
-                            <constraint firstItem="uxJ-TW-4Pz" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" id="a7S-FB-8Vn"/>
-                            <constraint firstAttribute="top" secondItem="uxJ-TW-4Pz" secondAttribute="top" id="b8K-7Y-uiO"/>
-                            <constraint firstAttribute="trailing" secondItem="uxJ-TW-4Pz" secondAttribute="trailing" id="qbU-5q-hwX"/>
+                            <constraint firstItem="uxJ-TW-4Pz" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" id="VhS-GL-idj"/>
+                            <constraint firstAttribute="top" secondItem="uxJ-TW-4Pz" secondAttribute="top" id="Xqt-FB-tZr"/>
+                            <constraint firstAttribute="trailing" secondItem="uxJ-TW-4Pz" secondAttribute="trailing" id="Y5J-8o-bgV"/>
+                            <constraint firstItem="uxJ-TW-4Pz" firstAttribute="bottom" secondItem="Ze5-6b-2t3" secondAttribute="bottom" id="fGb-ZF-19I"/>
                         </constraints>
                     </view>
                 </viewController>
@@ -36,6 +36,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="LaunchScreen" width="1125" height="2436"/>
+        <image name="LaunchScreen" width="375" height="812"/>
     </resources>
 </document>
