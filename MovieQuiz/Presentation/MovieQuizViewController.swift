@@ -6,8 +6,8 @@ final class MovieQuizViewController: UIViewController {
     @IBOutlet weak private var questionLabel: UILabel!
     @IBOutlet weak private var counter: UILabel!
     @IBOutlet weak private var image: UIImageView!
-    @IBOutlet weak var noButton: UIButton!
-    @IBOutlet weak var yesButton: UIButton!
+    @IBOutlet weak private var noButton: UIButton!
+    @IBOutlet weak private var yesButton: UIButton!
     
     // MARK: - Properties
     private var currentQuestionIndex = 0
