@@ -48,17 +48,10 @@
                                             <constraint firstAttribute="width" secondItem="gg6-hV-mXT" secondAttribute="height" multiplier="2:3" id="zfb-JI-Bk8"/>
                                         </constraints>
                                     </imageView>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" usesAttributedText="YES" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pys-if-5on" userLabel="Question Label">
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Рейтинг этого фильма больше чем 6?" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pys-if-5on" userLabel="Question Label">
                                         <rect key="frame" x="0.0" y="663.66666666666663" width="400" height="10.333333333333371"/>
-                                        <attributedString key="attributedText">
-                                            <fragment content="Рейтинг этого фильма больше чем 6?">
-                                                <attributes>
-                                                    <color key="NSColor" name="YP White (iOS)"/>
-                                                    <font key="NSFont" size="23" name="YSDisplay-Bold"/>
-                                                    <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0"/>
-                                                </attributes>
-                                            </fragment>
-                                        </attributedString>
+                                        <fontDescription key="fontDescription" name="YSDisplay-Bold" family="YS Display" pointSize="23"/>
+                                        <color key="textColor" name="YP White (iOS)"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" spacing="20" translatesAutoresizingMaskIntoConstraints="NO" id="mW3-ci-v58">
@@ -118,7 +111,9 @@
                     <connections>
                         <outlet property="Counter" destination="Cmi-VI-iQw" id="ePk-lY-T3b"/>
                         <outlet property="Image" destination="gg6-hV-mXT" id="Ugk-bC-K3q"/>
+                        <outlet property="noButton" destination="yho-b0-jBh" id="NfI-d8-afH"/>
                         <outlet property="questionLabel" destination="pys-if-5on" id="uNc-W9-xLd"/>
+                        <outlet property="yesButton" destination="T4c-4A-EiO" id="Xby-0Q-YgT"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>

@@ -33,11 +33,6 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		4D4A0D5E2DB79FD00081AFF9 /* Models */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = Models;
-			sourceTree = "<group>";
-		};
 		4DC529C42DAD799600961D1C /* Fonts */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = Fonts;
@@ -95,7 +90,6 @@
 		AD1ABAB02831907B00B3E448 /* MovieQuiz */ = {
 			isa = PBXGroup;
 			children = (
-				4D4A0D5E2DB79FD00081AFF9 /* Models */,
 				8F4738322848DE2A005DF65E /* Presentation */,
 				ADF0CF75283FDAA10075F54D /* Helpers */,
 				8F4738332848DE46005DF65E /* Resources */,
@@ -131,7 +125,6 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				4D4A0D5E2DB79FD00081AFF9 /* Models */,
 				4DC529C42DAD799600961D1C /* Fonts */,
 			);
 			name = MovieQuiz;
