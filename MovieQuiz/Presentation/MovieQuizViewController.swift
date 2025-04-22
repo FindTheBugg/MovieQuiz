@@ -3,9 +3,9 @@ import UIKit
 final class MovieQuizViewController: UIViewController {
     
     // MARK: - IB Outlets
-    @IBOutlet weak var questionLabel: UILabel!
-    @IBOutlet weak var counter: UILabel!
-    @IBOutlet weak var image: UIImageView!
+    @IBOutlet weak private var questionLabel: UILabel!
+    @IBOutlet weak private var counter: UILabel!
+    @IBOutlet weak private var image: UIImageView!
     
     // MARK: - Properties
     private var currentQuestionIndex = 0
@@ -27,7 +27,7 @@ final class MovieQuizViewController: UIViewController {
     //MARK: - override Methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        image.layer.cornerRadius = 10
+        image.layer.cornerRadius = image.frame.width / 20
         image.layer.masksToBounds = true
     }
     
