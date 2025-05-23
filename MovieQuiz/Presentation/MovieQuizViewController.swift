@@ -22,23 +22,28 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     //MARK: - override Methods
     override func viewDidLoad() {
         super.viewDidLoad()
-        statisticService = StatisticServiceImplementation()
-        alertPresenter = AlertPresenter(viewController: self)
+        
+        //  Настройка UI
+        image.layer.cornerRadius = image.frame.width / 20
+        image.layer.masksToBounds = true
+        
+        //  Инициализация сервисов
         let moviesLoader = MoviesLoader()
+            statisticService = StatisticServiceImplementation()
+            alertPresenter = AlertPresenter(viewController: self)
+            questionFactory = QuestionFactory(moviesLoader: moviesLoader, delegate: self)
+        
+        //  Настройка QuestionFactory
         questionFactory = QuestionFactory(
             moviesLoader: moviesLoader,
             delegate: self
         )
-        //        questionFactory.setup(delegate: self)
-        //        self.questionFactory = questionFactory
-        image.layer.cornerRadius = image.frame.width / 20
-        image.layer.masksToBounds = true
-        questionFactory?.requestNextQuestion()
-        questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
-        statisticService = StatisticServiceImplementation()
         
+        //  Загрузка данных и начало работы
         showLoadingIndicator()
         questionFactory?.loadData()
+        //        questionFactory.setup(delegate: self)
+        //        self.questionFactory = questionFactory
     }
     
     // MARK: - IB Actions
@@ -84,7 +89,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     private func showNetworkError(message: String) {
         hideLoadingIndicator()
-        let alertModel = AlertModel(
+        _ = AlertModel(
             title: "Ошибка!",
             message: "Ошибка подключения",
             buttonText: "Попробовать ещё раз",
@@ -172,11 +177,12 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
     //MARK: - Publick methods
     func didFailToLoadData(with error: Error) {
+        hideLoadingIndicator()
         showNetworkError(message: error.localizedDescription)
     }
     
     func didLoadDataFromServer() {
-        activityIndicator.isHidden = true
+        hideLoadingIndicator()
         questionFactory?.requestNextQuestion()
     }
     

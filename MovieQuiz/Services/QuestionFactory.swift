@@ -20,9 +20,11 @@ final class QuestionFactory: QuestionFactoryProtocol {
 //        QuizQuestion(image: "Tesla", text: "Рейтинг этого фильма больше чем 6?", correctAnswer: false),
 //        QuizQuestion(image: "Vivarium", text: "Рейтинг этого фильма больше чем 6?", correctAnswer: false)
 //    ]
+    
     private var movies: [MostPopularMovie] = []
     
     //MARK: - Initializators
+    
     init(moviesLoader: MoviesLoading, delegate: QuestionFactoryDelegate?) {
             self.moviesLoader = moviesLoader
             self.delegate = delegate
@@ -53,19 +55,14 @@ final class QuestionFactory: QuestionFactoryProtocol {
         DispatchQueue.global().async { [weak self] in
             guard let self = self else { return }
             let index = (0..<self.movies.count).randomElement() ?? 0
-            
             guard let movie = self.movies[safe: index] else { return }
-            
             var imageData = Data()
-           
            do {
-                imageData = try Data(contentsOf: movie.imageURL)
+                imageData = try Data(contentsOf: movie.resizedImageURL)
             } catch {
                 print("Failed to load image")
             }
-            
             let rating = Float(movie.rating) ?? 0
-            
             let text = "Рейтинг этого фильма больше чем 7?"
             let correctAnswer = rating > 7
             
