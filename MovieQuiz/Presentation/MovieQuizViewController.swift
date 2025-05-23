@@ -19,20 +19,23 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private var currentQuestion: QuizQuestion?
     private var statisticService: StatisticServiceProtocol!
     
-    
     //MARK: - override Methods
     override func viewDidLoad() {
         super.viewDidLoad()
         statisticService = StatisticServiceImplementation()
         alertPresenter = AlertPresenter(viewController: self)
-//        let questionFactory = QuestionFactory(moviesLoader: MoviesLoader, delegate: QuestionFactory)
-//        questionFactory.setup(delegate: self)
-//        self.questionFactory = questionFactory
+        let moviesLoader = MoviesLoader()
+        questionFactory = QuestionFactory(
+            moviesLoader: moviesLoader,
+            delegate: self
+        )
+        //        questionFactory.setup(delegate: self)
+        //        self.questionFactory = questionFactory
         image.layer.cornerRadius = image.frame.width / 20
         image.layer.masksToBounds = true
-//        questionFactory.requestNextQuestion()
+        questionFactory?.requestNextQuestion()
         questionFactory = QuestionFactory(moviesLoader: MoviesLoader(), delegate: self)
-//        statisticService = StatisticService()
+        statisticService = StatisticServiceImplementation()
         
         showLoadingIndicator()
         questionFactory?.loadData()

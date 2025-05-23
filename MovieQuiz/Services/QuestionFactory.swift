@@ -6,8 +6,7 @@ final class QuestionFactory: QuestionFactoryProtocol {
     private let moviesLoader: MoviesLoading
     private weak var delegate: QuestionFactoryDelegate?
     private var url = MoviesLoader()
-//    let imageData = try Data(contentsOf: mostPopularMoviesUrl)
-//    let image = UIImage(data: imageData)
+
     
 //     let questions: [QuizQuestion] = [
 //        QuizQuestion(image: "The Godfather", text: "Рейтинг этого фильма больше чем 6?", correctAnswer: true),
