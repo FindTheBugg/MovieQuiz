@@ -87,9 +87,9 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     private func showNetworkError(message: String) {
         hideLoadingIndicator()
-        _ = AlertModel(
+        let alertModel = AlertModel(
             title: "Ошибка!",
-            message: "Ошибка подключения",
+            message: "Интернет соединение отсутствует либо сервер недоступен",
             buttonText: "Попробовать ещё раз",
             completion: { [weak self] in
                 guard let self = self else { return }
@@ -99,6 +99,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
                 self.questionFactory?.requestNextQuestion()
             }
         )
+        let alertPresenter = AlertPresenter(viewController: self)
+        alertPresenter.show(alert: alertModel)
     }
     
     private func convert(model: QuizQuestion) -> QuizStepViewModel {
