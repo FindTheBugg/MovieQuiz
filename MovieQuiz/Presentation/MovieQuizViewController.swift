@@ -26,6 +26,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         //  Настройка UI
         image.layer.cornerRadius = image.frame.width / 20
         image.layer.masksToBounds = true
+//        questionLabel.font = UIFont(name: "YS Display-Bold", size: 23)
         
         //  Инициализация сервисов
         let moviesLoader = MoviesLoader()
@@ -96,9 +97,11 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
                 
                 self.currentQuestionIndex = 0
                 self.correctAnswers = 0
-                self.questionFactory?.requestNextQuestion()
+                self.questionFactory?.loadData()
+                showLoadingIndicator()
             }
         )
+        
         let alertPresenter = AlertPresenter(viewController: self)
         alertPresenter.show(alert: alertModel)
     }
