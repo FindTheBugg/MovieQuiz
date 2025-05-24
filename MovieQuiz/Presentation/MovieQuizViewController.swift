@@ -17,7 +17,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private var questionFactory: QuestionFactoryProtocol?
     private let questionsAmount: Int = 10
     private var currentQuestion: QuizQuestion?
-    private var statisticService: StatisticServiceProtocol!
+    private var statisticService: StatisticServiceProtocol = StatisticServiceImplementation()
     
     //MARK: - override Methods
     override func viewDidLoad() {
@@ -26,7 +26,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         //  Настройка UI
         image.layer.cornerRadius = image.frame.width / 20
         image.layer.masksToBounds = true
-//        questionLabel.font = UIFont(name: "YS Display-Bold", size: 23)
+        //        questionLabel.font = UIFont(name: "YS Display-Bold", size: 23)
         
         //  Инициализация сервисов
         let moviesLoader = MoviesLoader()
@@ -90,7 +90,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         hideLoadingIndicator()
         let alertModel = AlertModel(
             title: "Ошибка!",
-            message: "Интернет соединение отсутствует либо сервер недоступен",
+            message: "Интернет соединение отсутствует или сервер недоступен",
             buttonText: "Попробовать ещё раз",
             completion: { [weak self] in
                 guard let self = self else { return }
@@ -213,6 +213,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             questionFactory?.requestNextQuestion()
         }
     }
+    
     //MARK: - Publick methods
     func didFailToLoadData(with error: Error) {
         hideLoadingIndicator()
