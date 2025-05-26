@@ -171,45 +171,44 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     }
     
     private func showNextQuestionOrResult() {
-        image.layer.borderColor = UIColor.clear.cgColor
-        yesButton.isEnabled = true
-        yesButton.alpha = 1
-        noButton.isEnabled = true
-        noButton.alpha = 1
-        
-        statisticService.store(correct: correctAnswers, total: questionsAmount)
-        
-        if currentQuestionIndex == questionsAmount - 1 {
-            let bestGame = statisticService.bestGame
-            let totalGames = statisticService.gamesCount
-            let totalAccuracy = statisticService.totalAccuracy
+            yesButton.isEnabled = true
+            yesButton.alpha = 1
+            noButton.isEnabled = true
+            noButton.alpha = 1
+            image.layer.borderColor = UIColor.clear.cgColor
             
-            let dateFormatter = DateFormatter()
-            dateFormatter.dateFormat = "dd.MM.yy HH:mm"
-            let dateString = dateFormatter.string(from: bestGame.date)
-            
-            let alertModel = AlertModel(
-                title: "Этот раунд окончен!",
-                message: """
-                     Ваш результат: \(correctAnswers)/\(questionsAmount)
-                     Количество сыгранных квизов: \(totalGames)
-                     Рекорд: \(bestGame.correct)/\(bestGame.total) (\(dateString))
-                     Средняя точность: \(String(format: "%.1f", totalAccuracy))%
-                     """,
-                buttonText: "Сыграть ещё раз",
-                completion: { [weak self] in
-                    self?.currentQuestionIndex = 0
-                    self?.correctAnswers = 0
-                    self?.questionFactory?.requestNextQuestion()
-                }
-            )
-            
-            alertPresenter.show(alert: alertModel)
-        } else {
-            currentQuestionIndex += 1
-            questionFactory?.requestNextQuestion()
+            if currentQuestionIndex == questionsAmount - 1 {
+                statisticService.store(correct: correctAnswers, total: questionsAmount)
+                
+                let bestGame = statisticService.bestGame
+                let totalGames = statisticService.gamesCount
+                let totalAccuracy = statisticService.totalAccuracy
+                
+                let dateFormatter = DateFormatter()
+                dateFormatter.dateFormat = "dd.MM.yy HH:mm"
+                let dateString = dateFormatter.string(from: bestGame.date)
+                
+                let alertModel = AlertModel(
+                    title: "Этот раунд окончен!",
+                    message: """
+                        Ваш результат: \(correctAnswers)/\(questionsAmount)
+                        Количество сыгранных квизов: \(totalGames)
+                        Рекорд: \(bestGame.correct)/\(bestGame.total) (\(dateString))
+                        Средняя точность: \(String(format: "%.1f", totalAccuracy))%
+                        """,
+                    buttonText: "Сыграть ещё раз",
+                    completion: { [weak self] in
+                        self?.currentQuestionIndex = 0
+                        self?.correctAnswers = 0
+                        self?.questionFactory?.requestNextQuestion()
+                    }
+                )
+                alertPresenter.show(alert: alertModel)
+            } else {
+                currentQuestionIndex += 1
+                questionFactory?.requestNextQuestion()
+            }
         }
-    }
     
     //MARK: - Publick methods
     func didFailToLoadData(with error: Error) {
