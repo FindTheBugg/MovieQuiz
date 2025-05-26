@@ -102,9 +102,11 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         noButton.alpha = 1
         image.layer.borderColor = UIColor.clear.cgColor
         
-        statisticService.store(correct: correctAnswers, total: questionsAmount)
-        
+        // Перенесли вызов store() в блок завершения игры
         if currentQuestionIndex == questionsAmount - 1 {
+            // Сохраняем результат ТОЛЬКО когда игра закончена
+            statisticService.store(correct: correctAnswers, total: questionsAmount)
+            
             let bestGame = statisticService.bestGame
             let totalGames = statisticService.gamesCount
             let totalAccuracy = statisticService.totalAccuracy
@@ -128,7 +130,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
                     self?.questionFactory?.requestNextQuestion()
                 }
             )
-            
             alertPresenter.show(alert: alertModel)
         } else {
             currentQuestionIndex += 1
