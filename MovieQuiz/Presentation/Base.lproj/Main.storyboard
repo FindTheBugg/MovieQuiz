@@ -42,13 +42,13 @@
                                             </label>
                                         </subviews>
                                     </stackView>
-                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="749" image="The Godfather" translatesAutoresizingMaskIntoConstraints="NO" id="gg6-hV-mXT" userLabel="Preview Image">
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="749" translatesAutoresizingMaskIntoConstraints="NO" id="gg6-hV-mXT" userLabel="Preview Image">
                                         <rect key="frame" x="0.0" y="43.666666666666629" width="400" height="600"/>
                                         <constraints>
                                             <constraint firstAttribute="width" secondItem="gg6-hV-mXT" secondAttribute="height" multiplier="2:3" id="zfb-JI-Bk8"/>
                                         </constraints>
                                     </imageView>
-                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Рейтинг этого фильма больше чем 6?" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pys-if-5on" userLabel="Question Label">
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Рейтинг этого фильма больше чем 7?" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pys-if-5on" userLabel="Question Label">
                                         <rect key="frame" x="0.0" y="663.66666666666663" width="400" height="10.333333333333371"/>
                                         <fontDescription key="fontDescription" name="YSDisplay-Bold" family="YS Display" pointSize="23"/>
                                         <color key="textColor" name="YP White (iOS)"/>
@@ -98,11 +98,16 @@
                                     </stackView>
                                 </subviews>
                             </stackView>
+                            <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="medium" translatesAutoresizingMaskIntoConstraints="NO" id="ojS-Hp-lVm">
+                                <rect key="frame" x="210" y="468" width="20" height="20"/>
+                            </activityIndicatorView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                         <color key="backgroundColor" name="YP Black (iOS)"/>
                         <constraints>
                             <constraint firstItem="BIe-Jt-U24" firstAttribute="top" secondItem="6Tk-OE-BBY" secondAttribute="top" constant="10" id="0dB-VG-zPA"/>
+                            <constraint firstItem="ojS-Hp-lVm" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="Sfi-pH-eHP"/>
+                            <constraint firstItem="ojS-Hp-lVm" firstAttribute="centerY" secondItem="8bC-Xf-vdC" secondAttribute="centerY" id="iAm-t6-ZQ3"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="BIe-Jt-U24" secondAttribute="trailing" constant="20" id="jVM-QH-CPu"/>
                             <constraint firstItem="BIe-Jt-U24" firstAttribute="bottom" secondItem="6Tk-OE-BBY" secondAttribute="bottom" id="mx5-w3-7Hn"/>
                             <constraint firstItem="BIe-Jt-U24" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="20" id="syd-yb-oUp"/>
@@ -111,6 +116,7 @@
                     <connections>
                         <outlet property="Counter" destination="Cmi-VI-iQw" id="ePk-lY-T3b"/>
                         <outlet property="Image" destination="gg6-hV-mXT" id="Ugk-bC-K3q"/>
+                        <outlet property="activityIndicator" destination="ojS-Hp-lVm" id="0AH-zl-vBg"/>
                         <outlet property="noButton" destination="yho-b0-jBh" id="NfI-d8-afH"/>
                         <outlet property="questionLabel" destination="pys-if-5on" id="uNc-W9-xLd"/>
                         <outlet property="yesButton" destination="T4c-4A-EiO" id="Xby-0Q-YgT"/>
@@ -122,7 +128,6 @@
         </scene>
     </scenes>
     <resources>
-        <image name="The Godfather" width="1192" height="1716"/>
         <namedColor name="YP Black (iOS)">
             <color red="0.10196078431372549" green="0.10588235294117647" blue="0.13333333333333333" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
