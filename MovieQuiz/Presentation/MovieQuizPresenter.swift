@@ -5,8 +5,26 @@ import UIKit
 final class MovieQuizPresenter {
     
     //  MARK: - Properties
-     var currentQuestionIndex = 0
-     let questionsAmount: Int = 10
+    var currentQuestionIndex = 0
+    let questionsAmount: Int = 10
+    var currentQuestion: QuizQuestion?
+    weak var viewController: MovieQuizViewController?
+    
+    // MARK: - Button tapped methods
+    func noButton() {
+        guard let currentQuestion = currentQuestion else {
+            return
+        }
+        viewController?.showAnswerResult(isCorrect: !currentQuestion.correctAnswer)
+    }
+    
+    func yesButton() {
+        guard let currentQuestion = currentQuestion else {
+            return
+        }
+        viewController?.showAnswerResult(isCorrect: currentQuestion.correctAnswer)
+    }
+    
     
     //  MARK: - Methods
     func isLastQuestion() -> Bool {
@@ -21,7 +39,7 @@ final class MovieQuizPresenter {
         currentQuestionIndex += 1
     }
     
-     func convert(model: QuizQuestion) -> QuizStepViewModel {
+    func convert(model: QuizQuestion) -> QuizStepViewModel {
         let questionStep = QuizStepViewModel(
             image: UIImage(data: model.image) ?? UIImage(),
             question: model.text,

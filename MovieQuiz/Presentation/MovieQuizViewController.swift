@@ -15,8 +15,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private var alertPresenter: AlertPresenter!
     private var correctAnswers = 0
     private var questionFactory: QuestionFactoryProtocol?
-    private var currentQuestion: QuizQuestion?
     private var statisticService: StatisticServiceProtocol = StatisticServiceImplementation()
+    var currentQuestion: QuizQuestion?
     
     //MARK: - override Methods
     override func viewDidLoad() {
@@ -40,21 +40,18 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         //  Загрузка данных и начало работы
         showLoadingIndicator()
         questionFactory?.loadData()
+        movieQuizPresener.viewController = self
     }
     
-    // MARK: - IB Actions
-    @IBAction func noButton(_ sender: Any) {
-        guard let currentQuestion = currentQuestion else {
-            return
-        }
-        showAnswerResult(isCorrect: !currentQuestion.correctAnswer)
+    // MARK: - IBActions
+    @IBAction private func yesButton (_ sender: UIButton) {
+        movieQuizPresener.currentQuestion = currentQuestion
+        movieQuizPresener.yesButton()
     }
     
-    @IBAction func yesButton(_ sender: Any) {
-        guard let currentQuestion = currentQuestion else {
-            return
-        }
-        showAnswerResult(isCorrect: currentQuestion.correctAnswer)
+    @IBAction private func noButton (_ sender: UIButton) {
+        movieQuizPresener.currentQuestion = currentQuestion
+        movieQuizPresener.yesButton()
     }
     
     //MARK: - QuestionFactoryDelegate
@@ -102,15 +99,13 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         alertPresenter.show(alert: alertModel)
     }
     
- 
-    
     private func show(quiz step: QuizStepViewModel) {
         image.image = step.image
         questionLabel.text = step.question
         counter.text = step.questionNumber
     }
     
-    private func showAnswerResult(isCorrect: Bool){
+     func showAnswerResult(isCorrect: Bool){
         yesButton.isEnabled = false
         noButton.isEnabled = false
         
