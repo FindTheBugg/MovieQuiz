@@ -74,50 +74,82 @@ final class MovieQuizViewController: UIViewController {
         counter.text = step.questionNumber
     }
     
-    func highlightImageBorder(isCorrectAnswer: Bool) {
-        yesButton.isEnabled = false
-        noButton.isEnabled = false
-        
-        UIView.animate(withDuration: 0.3) {
-            self.yesButton.alpha = 0.5
-            self.noButton.alpha = 0.5
-        }
+    // MARK: - Animations
+    func showAnswerFeedback(isCorrect: Bool) {
+        // удаление предыдущич анимаций
+        image.layer.removeAnimation(forKey: "borderAnimation")
         image.layer.borderWidth = 8
+        image.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
+    }
+
+    func fadeBorder(completion: @escaping () -> Void) {
+        // удаление предыдущие анимации
+        image.layer.removeAnimation(forKey: "fadeBorder")
         
-        if isCorrectAnswer {
-            UIView.animate(withDuration: 0.3,
-                           delay: 0,
-                           usingSpringWithDamping: 0.7,
-                           initialSpringVelocity: 0.2,
-                           options: []) {
-                self.image.transform = CGAffineTransform(scaleX: 1.05, y: 1.05)
-                self.image.layer.borderColor = UIColor.ypGreen.cgColor
-            } completion: { _ in
-                UIView.animate(withDuration: 0.2) {
-                    self.image.transform = .identity
-                }
+        // создание анимацию
+        let fadeAnimation = CABasicAnimation(keyPath: "borderColor")
+        fadeAnimation.fromValue = image.layer.borderColor
+        fadeAnimation.toValue = UIColor.clear.cgColor
+        fadeAnimation.duration = 0.7
+        fadeAnimation.timingFunction = CAMediaTimingFunction(name: .easeOut)
+        fadeAnimation.fillMode = .forwards
+        fadeAnimation.isRemovedOnCompletion = false
+        
+        CATransaction.begin()
+        CATransaction.setCompletionBlock {
+            self.image.layer.borderColor = UIColor.clear.cgColor
+            self.image.layer.removeAnimation(forKey: "fadeBorder")
+            completion()
+        }
+        
+        image.layer.add(fadeAnimation, forKey: "fadeBorder")
+        CATransaction.commit()
+    }
+
+    func resetImageBorder(animated: Bool, completion: (() -> Void)? = nil) {
+        if animated {
+            // задержка азтухания (оставил здесь т. к. анимация требует этого здесь)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+                self?.fadeBorder(completion: completion ?? {})
             }
         } else {
-            let shake = CAKeyframeAnimation(keyPath: "transform.translation.x")
-            shake.values = [-5, 5, -5, 5, -3, 3, 0]
-            shake.duration = 0.4
-            image.layer.add(shake, forKey: "shake")
-            image.layer.borderColor = UIColor.ypRed.cgColor
+            image.layer.borderColor = UIColor.clear.cgColor
+            completion?()
         }
-        
-        UIView.animate(withDuration: 0.4) {
-            self.yesButton.alpha = 1
-            self.noButton.alpha = 1
-        } completion: { _ in
-            self.yesButton.isEnabled = true
-            self.noButton.isEnabled = true
-        }
-        
-        UIView.animate(withDuration: 0.3) {
-            self.image.layer.borderColor = UIColor.clear.cgColor
-        }
-        
     }
+
+    func animateCorrectAnswer(completion: @escaping () -> Void) {
+        UIView.animate(withDuration: 0.3,
+                       delay: 0,
+                       usingSpringWithDamping: 0.7,
+                       initialSpringVelocity: 0.2,
+                       options: []) {
+            self.image.transform = CGAffineTransform(scaleX: 1.05, y: 1.05)
+        } completion: { _ in
+            UIView.animate(withDuration: 0.2) {
+                self.image.transform = .identity
+                completion()
+            }
+        }
+    }
+
+    func animateWrongAnswer(completion: @escaping () -> Void) {
+        let shake = CAKeyframeAnimation(keyPath: "transform.translation.x")
+        shake.values = [-5, 5, -5, 5, -3, 3, 0]
+        shake.duration = 0.4
+        
+        CATransaction.begin()
+        CATransaction.setCompletionBlock(completion)
+        image.layer.add(shake, forKey: "shake")
+        CATransaction.commit()
+    }
+    
+    func setButtonsEnabled(_ enabled: Bool) {
+           yesButton.isEnabled = enabled
+           noButton.isEnabled = enabled
+           yesButton.alpha = enabled ? 1 : 0.5
+           noButton.alpha = enabled ? 1 : 0.5
+       }
     
     //MARK: - ViewModels
     

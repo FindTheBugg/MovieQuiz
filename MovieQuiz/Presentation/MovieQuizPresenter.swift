@@ -5,34 +5,28 @@ import UIKit
 final class MovieQuizPresenter: QuestionFactoryDelegate {
     
     //  MARK: - Properties
-    // Все свойства
     private let statisticService: StatisticServiceImplementation
     private let moviesLoader: MoviesLoading
     private let alertPresenter: AlertPresenter
     let questionFactory: QuestionFactoryProtocol
     weak var viewController: MovieQuizViewController?
     
-    // Остальные свойства
     private var currentQuestionIndex = 0
     private let questionsAmount: Int = 10
     private var currentQuestion: QuizQuestion?
     var correctAnswers = 0
     
     init(viewController: MovieQuizViewController) {
-        // 1. Сначала инициализируем все зависимости
         self.statisticService = StatisticServiceImplementation()
         self.moviesLoader = MoviesLoader()
         self.alertPresenter = AlertPresenter(viewController: viewController)
         
-        // 2. Временная переменная для фабрики
         let factory = QuestionFactory(moviesLoader: moviesLoader, delegate: nil)
         self.questionFactory = factory
         
-        // 3. Теперь можно использовать self
         factory.delegate = self
         self.viewController = viewController
         
-        // 4. Начинаем загрузку
         viewController.showLoadingIndicator()
     }
     
@@ -120,6 +114,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
                 buttonText: "Сыграть ещё раз",
                 completion: { [weak self] in
                     self?.resetQuestionIndex()
+                    self?.correctAnswers = 0
                     self?.questionFactory.requestNextQuestion()
                 }
             )
@@ -131,13 +126,33 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     }
     
     func showAnswerResult(isCorrect: Bool) {
-        correctAnswers += 1
+        if isCorrect {
+            correctAnswers += 1
+        }
         
-        viewController?.highlightImageBorder(isCorrectAnswer: isCorrect)
+        viewController?.setButtonsEnabled(false)
+        viewController?.showAnswerFeedback(isCorrect: isCorrect)
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
-            guard let self = self else { return }
-            showNextQuestionOrResult()
+        //  запуск анимации
+        if isCorrect {
+            viewController?.animateCorrectAnswer { [weak self] in
+                self?.handleAnimationCompletion()
+            }
+        } else {
+            viewController?.animateWrongAnswer { [weak self] in
+                self?.handleAnimationCompletion()
+            }
+        }
+    }
+    
+    private func handleAnimationCompletion() {
+        viewController?.resetImageBorder(animated: true) { [weak self] in
+            self?.viewController?.setButtonsEnabled(true)
+            
+            // пауза перед сменой изображения
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+                self?.showNextQuestionOrResult()
+            }
         }
     }
     
