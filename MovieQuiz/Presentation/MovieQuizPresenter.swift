@@ -9,24 +9,25 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     private let moviesLoader: MoviesLoading
     private let alertPresenter: AlertPresenter
     let questionFactory: QuestionFactoryProtocol
-    weak var viewController: MovieQuizViewController?
-    
+    weak var viewController: MovieQuizViewControllerProtocol?
     private var currentQuestionIndex = 0
     private let questionsAmount: Int = 10
     private var currentQuestion: QuizQuestion?
     var correctAnswers = 0
     
-    init(viewController: MovieQuizViewController) {
+    init(viewController: MovieQuizViewControllerProtocol) {
+        self.viewController = viewController
         self.statisticService = StatisticServiceImplementation()
         self.moviesLoader = MoviesLoader()
-        self.alertPresenter = AlertPresenter(viewController: viewController)
-        
+        if let vc = viewController as? UIViewController {
+                self.alertPresenter = AlertPresenter(viewController: vc)
+            } else {
+                // Для тестов заглушка
+                self.alertPresenter = AlertPresenter(viewController: UIViewController())
+            }
         let factory = QuestionFactory(moviesLoader: moviesLoader, delegate: nil)
         self.questionFactory = factory
-        
         factory.delegate = self
-        self.viewController = viewController
-        
         viewController.showLoadingIndicator()
     }
     

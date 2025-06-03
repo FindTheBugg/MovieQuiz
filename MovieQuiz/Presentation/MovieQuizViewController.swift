@@ -1,6 +1,17 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController {
+final class MovieQuizViewController: UIViewController, MovieQuizViewControllerProtocol {
+    
+    //MARK: - For protocol
+    
+    func show(quiz result: QuizResultsViewModel) {
+        // заглушка для протокола
+    }
+    
+    func highlightImageBorder(isCorrectAnswer: Bool) {
+        // заглушка для протокола
+    }
+    
     
     // MARK: - IB Outlets
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
