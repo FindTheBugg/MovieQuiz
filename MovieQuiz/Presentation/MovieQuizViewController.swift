@@ -11,8 +11,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     @IBOutlet weak private var yesButton: UIButton!
     
     // MARK: - Properties
-    private let movieQuizPresener = MovieQuizPresenter()
-    private var alertPresenter: AlertPresenter!
+    private lazy var movieQuizPresener = MovieQuizPresenter(alertPresenter: alertPresenter)
+    private lazy var alertPresenter = AlertPresenter(viewController: self)
     private var correctAnswers = 0
     private var questionFactory: QuestionFactoryProtocol?
     private var statisticService: StatisticServiceProtocol = StatisticServiceImplementation()
@@ -143,7 +143,9 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             UIView.animate(withDuration: 0.3) {
                 self.image.layer.borderColor = UIColor.clear.cgColor
             }
-            movieQuizPresener.showNextQuestionOrResult()
+            self.movieQuizPresener.correctAnswers = self.correctAnswers
+            self.movieQuizPresener.questionFactory = self.questionFactory
+            self.movieQuizPresener.showNextQuestionOrResult()
         }
     }
     

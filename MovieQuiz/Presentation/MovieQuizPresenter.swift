@@ -11,12 +11,14 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     var currentQuestion: QuizQuestion?
     weak var viewController: MovieQuizViewController?
     let statisticService = StatisticServiceImplementation()
-    private var alertPresenter: AlertPresenter!
-    private var correctAnswers = 0
-    private var questionFactory: QuestionFactory?
+    private var alertPresenter: AlertPresenter
+    var correctAnswers = 0
+    var questionFactory:(any QuestionFactoryProtocol)?
     private let moviesLoader: MoviesLoading
+
     
-    init() {
+    init(alertPresenter: AlertPresenter) {
+        self.alertPresenter = alertPresenter
         self.moviesLoader = MoviesLoader()
         
         self.questionFactory = QuestionFactory(
@@ -80,11 +82,6 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     }
     
     func showNextQuestionOrResult() {
-        //            yesButton.isEnabled = true
-        //            yesButton.alpha = 1
-        //            noButton.isEnabled = true
-        //            noButton.alpha = 1
-        //            image.layer.borderColor = UIColor.clear.cgColor
         
         if self.isLastQuestion() {
             statisticService.store(correct: correctAnswers, total: self.questionsAmount)
