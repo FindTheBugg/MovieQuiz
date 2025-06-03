@@ -13,6 +13,10 @@ final class AlertPresenter {
             message: model.message,
             preferredStyle: .alert)
         
+        #if DEBUG
+        alert.view.accessibilityIdentifier = "Game results"
+        #endif
+        
         let action = UIAlertAction(title: model.buttonText, style: .default) { _ in
             model.completion()
         }

@@ -11,11 +11,10 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     @IBOutlet weak private var yesButton: UIButton!
     
     // MARK: - Properties
+    private let movieQuizPresener = MovieQuizPresenter()
     private var alertPresenter: AlertPresenter!
-    private var currentQuestionIndex = 0
     private var correctAnswers = 0
     private var questionFactory: QuestionFactoryProtocol?
-    private let questionsAmount: Int = 10
     private var currentQuestion: QuizQuestion?
     private var statisticService: StatisticServiceProtocol = StatisticServiceImplementation()
     
@@ -25,7 +24,6 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         //  Настройка UI
         image.layer.cornerRadius = image.frame.width / 20
         image.layer.masksToBounds = true
-        //        questionLabel.font = UIFont(name: "YS Display-Bold", size: 23)
         
         //  Инициализация сервисов
         let moviesLoader = MoviesLoader()
@@ -66,7 +64,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             return
         }
         currentQuestion = question
-        let viewModel = convert(model: question)
+        let viewModel = movieQuizPresener.convert(model: question)
         
         DispatchQueue.main.async { [weak self] in
             self?.show(quiz: viewModel)
@@ -94,7 +92,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             completion: { [weak self] in
                 guard let self = self else { return }
                 
-                self.currentQuestionIndex = 0
+                self.movieQuizPresener.resetQuestionIndex()
                 self.correctAnswers = 0
                 self.questionFactory?.loadData()
                 showLoadingIndicator()
@@ -104,13 +102,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         alertPresenter.show(alert: alertModel)
     }
     
-    private func convert(model: QuizQuestion) -> QuizStepViewModel {
-        let questionStep = QuizStepViewModel(
-            image: UIImage(data: model.image) ?? UIImage(),
-            question: model.text,
-            questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
-        return questionStep
-    }
+ 
     
     private func show(quiz step: QuizStepViewModel) {
         image.image = step.image
@@ -177,8 +169,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             noButton.alpha = 1
             image.layer.borderColor = UIColor.clear.cgColor
             
-            if currentQuestionIndex == questionsAmount - 1 {
-                statisticService.store(correct: correctAnswers, total: questionsAmount)
+        if movieQuizPresener.isLastQuestion() {
+            statisticService.store(correct: correctAnswers, total: movieQuizPresener.questionsAmount)
                 
                 let bestGame = statisticService.bestGame
                 let totalGames = statisticService.gamesCount
@@ -191,21 +183,21 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
                 let alertModel = AlertModel(
                     title: "Этот раунд окончен!",
                     message: """
-                        Ваш результат: \(correctAnswers)/\(questionsAmount)
+                        Ваш результат: \(correctAnswers)/\(movieQuizPresener.questionsAmount)
                         Количество сыгранных квизов: \(totalGames)
                         Рекорд: \(bestGame.correct)/\(bestGame.total) (\(dateString))
                         Средняя точность: \(String(format: "%.1f", totalAccuracy))%
                         """,
                     buttonText: "Сыграть ещё раз",
                     completion: { [weak self] in
-                        self?.currentQuestionIndex = 0
+                        self?.movieQuizPresener.resetQuestionIndex()
                         self?.correctAnswers = 0
                         self?.questionFactory?.requestNextQuestion()
                     }
                 )
                 alertPresenter.show(alert: alertModel)
             } else {
-                currentQuestionIndex += 1
+                movieQuizPresener.currentQuestionIndex += 1
                 questionFactory?.requestNextQuestion()
             }
         }
