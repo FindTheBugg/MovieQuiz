@@ -5,25 +5,35 @@ import UIKit
 final class MovieQuizPresenter: QuestionFactoryDelegate {
     
     //  MARK: - Properties
-    
-    var currentQuestionIndex = 0
-    let questionsAmount: Int = 10
-    var currentQuestion: QuizQuestion?
-    weak var viewController: MovieQuizViewController?
-    let statisticService = StatisticServiceImplementation()
-    private var alertPresenter: AlertPresenter
-    var correctAnswers = 0
-    var questionFactory: (any QuestionFactoryProtocol)?
+    // Все свойства
+    private let statisticService: StatisticServiceImplementation
     private let moviesLoader: MoviesLoading
+    private let alertPresenter: AlertPresenter
+    let questionFactory: QuestionFactoryProtocol
+    weak var viewController: MovieQuizViewController?
     
-    init(alertPresenter: AlertPresenter) {
-        self.alertPresenter = alertPresenter
+    // Остальные свойства
+    private var currentQuestionIndex = 0
+    private let questionsAmount: Int = 10
+    private var currentQuestion: QuizQuestion?
+    var correctAnswers = 0
+    
+    init(viewController: MovieQuizViewController) {
+        // 1. Сначала инициализируем все зависимости
+        self.statisticService = StatisticServiceImplementation()
         self.moviesLoader = MoviesLoader()
-        self.questionFactory = QuestionFactory(
-            moviesLoader: moviesLoader,
-            delegate: nil
-        )
-        self.questionFactory?.setup(delegate: self)
+        self.alertPresenter = AlertPresenter(viewController: viewController)
+        
+        // 2. Временная переменная для фабрики
+        let factory = QuestionFactory(moviesLoader: moviesLoader, delegate: nil)
+        self.questionFactory = factory
+        
+        // 3. Теперь можно использовать self
+        factory.delegate = self
+        self.viewController = viewController
+        
+        // 4. Начинаем загрузку
+        viewController.showLoadingIndicator()
     }
     
     // MARK: - Button tapped methods
@@ -36,7 +46,6 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         didAnswer(isYes: true)
     }
     
-    
     //  MARK: - Methods
     
     func didFailToLoadData(with error: Error) {
@@ -46,7 +55,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     
     func didLoadDataFromServer() {
         viewController?.hideLoadingIndicator()
-        questionFactory?.requestNextQuestion()
+        questionFactory.requestNextQuestion()
     }
     
     func isLastQuestion() -> Bool {
@@ -84,7 +93,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     func restartGame() {
         currentQuestionIndex = 0
         correctAnswers = 0
-        questionFactory?.requestNextQuestion()
+        questionFactory.requestNextQuestion()
     }
     
     func showNextQuestionOrResult() {
@@ -111,13 +120,24 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
                 buttonText: "Сыграть ещё раз",
                 completion: { [weak self] in
                     self?.resetQuestionIndex()
-                    self?.questionFactory?.requestNextQuestion()
+                    self?.questionFactory.requestNextQuestion()
                 }
             )
             alertPresenter.show(alert: alertModel)
         } else {
             self.currentQuestionIndex += 1
-            questionFactory?.requestNextQuestion()
+            questionFactory.requestNextQuestion()
+        }
+    }
+    
+    func showAnswerResult(isCorrect: Bool) {
+        correctAnswers += 1
+        
+        viewController?.highlightImageBorder(isCorrectAnswer: isCorrect)
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
+            guard let self = self else { return }
+            showNextQuestionOrResult()
         }
     }
     
@@ -130,7 +150,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         
         let givaenAnswer = isYes
         
-        viewController?.showAnswerResult(isCorrect: givaenAnswer == currentQuestion.correctAnswer)
+        showAnswerResult(isCorrect: givaenAnswer == currentQuestion.correctAnswer)
     }
 }
 

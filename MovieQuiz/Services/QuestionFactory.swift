@@ -5,7 +5,7 @@ final class QuestionFactory: QuestionFactoryProtocol {
     
     //MARK: - Properties
     private let moviesLoader: MoviesLoading
-    private weak var delegate: QuestionFactoryDelegate?
+    weak var delegate: QuestionFactoryDelegate?
     private var url = MoviesLoader()
     private var movies: [MostPopularMovie] = []
 

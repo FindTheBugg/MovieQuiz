@@ -11,10 +11,7 @@ final class MovieQuizViewController: UIViewController {
     @IBOutlet weak private var yesButton: UIButton!
     
     // MARK: - Properties
-    private lazy var movieQuizPresener = MovieQuizPresenter(alertPresenter: alertPresenter)
-    private var alertPresenter: AlertPresenter!
-    private var statisticService: StatisticServiceProtocol = StatisticServiceImplementation()
-    
+    private var movieQuizPresener: MovieQuizPresenter!
     
     //MARK: - override Methods
     override func viewDidLoad() {
@@ -24,12 +21,11 @@ final class MovieQuizViewController: UIViewController {
         image.layer.masksToBounds = true
         
         //  Инициализация сервисов
-        statisticService = StatisticServiceImplementation()
-        alertPresenter = AlertPresenter(viewController: self)
+        movieQuizPresener = MovieQuizPresenter(viewController: self)
         
         //  Загрузка данных и начало работы
         showLoadingIndicator()
-        movieQuizPresener.questionFactory?.loadData()
+        movieQuizPresener.questionFactory.loadData()
         movieQuizPresener.viewController = self
     }
     
@@ -65,7 +61,6 @@ final class MovieQuizViewController: UIViewController {
                 
                 self.movieQuizPresener.resetQuestionIndex()
                 self.movieQuizPresener.correctAnswers = 0
-                //                self.questionFactory?.loadData()
                 showLoadingIndicator()
             }
         )
@@ -79,7 +74,7 @@ final class MovieQuizViewController: UIViewController {
         counter.text = step.questionNumber
     }
     
-    func showAnswerResult(isCorrect: Bool){
+    func highlightImageBorder(isCorrectAnswer: Bool) {
         yesButton.isEnabled = false
         noButton.isEnabled = false
         
@@ -87,10 +82,9 @@ final class MovieQuizViewController: UIViewController {
             self.yesButton.alpha = 0.5
             self.noButton.alpha = 0.5
         }
-        
         image.layer.borderWidth = 8
         
-        if isCorrect {
+        if isCorrectAnswer {
             UIView.animate(withDuration: 0.3,
                            delay: 0,
                            usingSpringWithDamping: 0.7,
@@ -103,8 +97,6 @@ final class MovieQuizViewController: UIViewController {
                     self.image.transform = .identity
                 }
             }
-            
-            movieQuizPresener.correctAnswers += 1
         } else {
             let shake = CAKeyframeAnimation(keyPath: "transform.translation.x")
             shake.values = [-5, 5, -5, 5, -3, 3, 0]
@@ -113,24 +105,18 @@ final class MovieQuizViewController: UIViewController {
             image.layer.borderColor = UIColor.ypRed.cgColor
         }
         
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
-            guard let self = self else { return }
-            
-            UIView.animate(withDuration: 0.4) {
-                self.yesButton.alpha = 1
-                self.noButton.alpha = 1
-            } completion: { _ in
-                self.yesButton.isEnabled = true
-                self.noButton.isEnabled = true
-            }
-            
-            UIView.animate(withDuration: 0.3) {
-                self.image.layer.borderColor = UIColor.clear.cgColor
-            }
-            //            self.movieQuizPresener.correctAnswers = self.correctAnswers
-            //            self.movieQuizPresener.questionFactory = self.questionFactory
-            self.movieQuizPresener.showNextQuestionOrResult()
+        UIView.animate(withDuration: 0.4) {
+            self.yesButton.alpha = 1
+            self.noButton.alpha = 1
+        } completion: { _ in
+            self.yesButton.isEnabled = true
+            self.noButton.isEnabled = true
         }
+        
+        UIView.animate(withDuration: 0.3) {
+            self.image.layer.borderColor = UIColor.clear.cgColor
+        }
+        
     }
     
     //MARK: - ViewModels
