@@ -13,20 +13,17 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     let statisticService = StatisticServiceImplementation()
     private var alertPresenter: AlertPresenter
     var correctAnswers = 0
-    var questionFactory:(any QuestionFactoryProtocol)?
+    var questionFactory: (any QuestionFactoryProtocol)?
     private let moviesLoader: MoviesLoading
-
     
     init(alertPresenter: AlertPresenter) {
         self.alertPresenter = alertPresenter
         self.moviesLoader = MoviesLoader()
-        
         self.questionFactory = QuestionFactory(
             moviesLoader: moviesLoader,
             delegate: nil
         )
         self.questionFactory?.setup(delegate: self)
-        self.questionFactory?.loadData()
     }
     
     // MARK: - Button tapped methods
@@ -42,11 +39,14 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     
     //  MARK: - Methods
     
-    func didLoadDataFromServer() {
-        //            questionFactory.requestNextQuestion()
+    func didFailToLoadData(with error: Error) {
+        viewController?.hideLoadingIndicator()
+        viewController?.showNetworkError(message: error.localizedDescription)
     }
     
-    func didFailToLoadData(with error: Error) {
+    func didLoadDataFromServer() {
+        viewController?.hideLoadingIndicator()
+        questionFactory?.requestNextQuestion()
     }
     
     func isLastQuestion() -> Bool {
@@ -79,6 +79,12 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         DispatchQueue.main.async { [weak self] in
             self?.viewController?.show(quiz: viewModel)
         }
+    }
+    
+    func restartGame() {
+        currentQuestionIndex = 0
+        correctAnswers = 0
+        questionFactory?.requestNextQuestion()
     }
     
     func showNextQuestionOrResult() {

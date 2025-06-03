@@ -1,6 +1,6 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
+final class MovieQuizViewController: UIViewController {
     
     // MARK: - IB Outlets
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
@@ -12,9 +12,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     // MARK: - Properties
     private lazy var movieQuizPresener = MovieQuizPresenter(alertPresenter: alertPresenter)
-    private lazy var alertPresenter = AlertPresenter(viewController: self)
-    private var correctAnswers = 0
-    private var questionFactory: QuestionFactoryProtocol?
+    private var alertPresenter: AlertPresenter!
     private var statisticService: StatisticServiceProtocol = StatisticServiceImplementation()
     
     
@@ -26,20 +24,12 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         image.layer.masksToBounds = true
         
         //  Инициализация сервисов
-        let moviesLoader = MoviesLoader()
         statisticService = StatisticServiceImplementation()
         alertPresenter = AlertPresenter(viewController: self)
-        questionFactory = QuestionFactory(moviesLoader: moviesLoader, delegate: self)
-        
-        //  Настройка QuestionFactory
-        questionFactory = QuestionFactory(
-            moviesLoader: moviesLoader,
-            delegate: self
-        )
         
         //  Загрузка данных и начало работы
         showLoadingIndicator()
-        questionFactory?.loadData()
+        movieQuizPresener.questionFactory?.loadData()
         movieQuizPresener.viewController = self
     }
     
@@ -54,17 +44,17 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     //MARK: - Private Methods
     
-    private func showLoadingIndicator() {
+    func showLoadingIndicator() {
         activityIndicator.isHidden = false
         activityIndicator.startAnimating()
     }
     
-    private func hideLoadingIndicator() {
+    func hideLoadingIndicator() {
         activityIndicator.isHidden = true
         activityIndicator.stopAnimating()
     }
     
-    private func showNetworkError(message: String) {
+    func showNetworkError(message: String) {
         hideLoadingIndicator()
         let alertModel = AlertModel(
             title: "Ошибка!",
@@ -74,8 +64,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
                 guard let self = self else { return }
                 
                 self.movieQuizPresener.resetQuestionIndex()
-                self.correctAnswers = 0
-                self.questionFactory?.loadData()
+                self.movieQuizPresener.correctAnswers = 0
+                //                self.questionFactory?.loadData()
                 showLoadingIndicator()
             }
         )
@@ -83,19 +73,13 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         alertPresenter.show(alert: alertModel)
     }
     
-    //  MARK: - QuestionFactory
-    
-    func didReceiveNextQuestion(question: QuizQuestion?) {
-        movieQuizPresener.didReceiveNextQuestion(question: question)
-    }
-    
-     func show(quiz step: QuizStepViewModel) {
+    func show(quiz step: QuizStepViewModel) {
         image.image = step.image
         questionLabel.text = step.question
         counter.text = step.questionNumber
     }
     
-     func showAnswerResult(isCorrect: Bool){
+    func showAnswerResult(isCorrect: Bool){
         yesButton.isEnabled = false
         noButton.isEnabled = false
         
@@ -120,7 +104,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
                 }
             }
             
-            correctAnswers += 1
+            movieQuizPresener.correctAnswers += 1
         } else {
             let shake = CAKeyframeAnimation(keyPath: "transform.translation.x")
             shake.values = [-5, 5, -5, 5, -3, 3, 0]
@@ -143,23 +127,10 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             UIView.animate(withDuration: 0.3) {
                 self.image.layer.borderColor = UIColor.clear.cgColor
             }
-            self.movieQuizPresener.correctAnswers = self.correctAnswers
-            self.movieQuizPresener.questionFactory = self.questionFactory
+            //            self.movieQuizPresener.correctAnswers = self.correctAnswers
+            //            self.movieQuizPresener.questionFactory = self.questionFactory
             self.movieQuizPresener.showNextQuestionOrResult()
         }
-    }
-    
-    
-    
-    //MARK: - Publick methods
-    func didFailToLoadData(with error: Error) {
-        hideLoadingIndicator()
-        showNetworkError(message: error.localizedDescription)
-    }
-    
-    func didLoadDataFromServer() {
-        hideLoadingIndicator()
-        questionFactory?.requestNextQuestion()
     }
     
     //MARK: - ViewModels
