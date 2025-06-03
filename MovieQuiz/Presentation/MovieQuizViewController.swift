@@ -16,7 +16,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     private var correctAnswers = 0
     private var questionFactory: QuestionFactoryProtocol?
     private var statisticService: StatisticServiceProtocol = StatisticServiceImplementation()
-    var currentQuestion: QuizQuestion?
+    
     
     //MARK: - override Methods
     override func viewDidLoad() {
@@ -45,27 +45,11 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     
     // MARK: - IBActions
     @IBAction private func yesButton (_ sender: UIButton) {
-        movieQuizPresener.currentQuestion = currentQuestion
         movieQuizPresener.yesButton()
     }
     
     @IBAction private func noButton (_ sender: UIButton) {
-        movieQuizPresener.currentQuestion = currentQuestion
-        movieQuizPresener.yesButton()
-    }
-    
-    //MARK: - QuestionFactoryDelegate
-    
-    func didReceiveNextQuestion(question: QuizQuestion?) {
-        guard let question = question else {
-            return
-        }
-        currentQuestion = question
-        let viewModel = movieQuizPresener.convert(model: question)
-        
-        DispatchQueue.main.async { [weak self] in
-            self?.show(quiz: viewModel)
-        }
+        movieQuizPresener.noButton()
     }
     
     //MARK: - Private Methods
@@ -99,7 +83,13 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         alertPresenter.show(alert: alertModel)
     }
     
-    private func show(quiz step: QuizStepViewModel) {
+    //  MARK: - QuestionFactory
+    
+    func didReceiveNextQuestion(question: QuizQuestion?) {
+        movieQuizPresener.didReceiveNextQuestion(question: question)
+    }
+    
+     func show(quiz step: QuizStepViewModel) {
         image.image = step.image
         questionLabel.text = step.question
         counter.text = step.questionNumber
@@ -153,49 +143,11 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             UIView.animate(withDuration: 0.3) {
                 self.image.layer.borderColor = UIColor.clear.cgColor
             }
-            self.showNextQuestionOrResult()
+            movieQuizPresener.showNextQuestionOrResult()
         }
     }
     
-    private func showNextQuestionOrResult() {
-            yesButton.isEnabled = true
-            yesButton.alpha = 1
-            noButton.isEnabled = true
-            noButton.alpha = 1
-            image.layer.borderColor = UIColor.clear.cgColor
-            
-        if movieQuizPresener.isLastQuestion() {
-            statisticService.store(correct: correctAnswers, total: movieQuizPresener.questionsAmount)
-                
-                let bestGame = statisticService.bestGame
-                let totalGames = statisticService.gamesCount
-                let totalAccuracy = statisticService.totalAccuracy
-                
-                let dateFormatter = DateFormatter()
-                dateFormatter.dateFormat = "dd.MM.yy HH:mm"
-                let dateString = dateFormatter.string(from: bestGame.date)
-                
-                let alertModel = AlertModel(
-                    title: "Этот раунд окончен!",
-                    message: """
-                        Ваш результат: \(correctAnswers)/\(movieQuizPresener.questionsAmount)
-                        Количество сыгранных квизов: \(totalGames)
-                        Рекорд: \(bestGame.correct)/\(bestGame.total) (\(dateString))
-                        Средняя точность: \(String(format: "%.1f", totalAccuracy))%
-                        """,
-                    buttonText: "Сыграть ещё раз",
-                    completion: { [weak self] in
-                        self?.movieQuizPresener.resetQuestionIndex()
-                        self?.correctAnswers = 0
-                        self?.questionFactory?.requestNextQuestion()
-                    }
-                )
-                alertPresenter.show(alert: alertModel)
-            } else {
-                movieQuizPresener.currentQuestionIndex += 1
-                questionFactory?.requestNextQuestion()
-            }
-        }
+    
     
     //MARK: - Publick methods
     func didFailToLoadData(with error: Error) {
