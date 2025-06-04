@@ -15,16 +15,17 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
     private var currentQuestion: QuizQuestion?
     var correctAnswers = 0
     
+    //  MARK: - Initializators
     init(viewController: MovieQuizViewControllerProtocol) {
         self.viewController = viewController
         self.statisticService = StatisticServiceImplementation()
         self.moviesLoader = MoviesLoader()
         if let vc = viewController as? UIViewController {
-                self.alertPresenter = AlertPresenter(viewController: vc)
-            } else {
-                // Для тестов заглушка
-                self.alertPresenter = AlertPresenter(viewController: UIViewController())
-            }
+            self.alertPresenter = AlertPresenter(viewController: vc)
+        } else {
+            // Для тестов заглушка
+            self.alertPresenter = AlertPresenter(viewController: UIViewController())
+        }
         let factory = QuestionFactory(moviesLoader: moviesLoader, delegate: nil)
         self.questionFactory = factory
         factory.delegate = self
@@ -126,6 +127,7 @@ final class MovieQuizPresenter: QuestionFactoryDelegate {
         }
     }
     
+    //  MARK: - Animations
     func showAnswerResult(isCorrect: Bool) {
         if isCorrect {
             correctAnswers += 1
