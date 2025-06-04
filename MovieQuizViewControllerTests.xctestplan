@@ -1,0 +1,25 @@
+{
+  "configurations" : [
+    {
+      "id" : "CE4FF613-D9B8-433A-BA1B-AF63F7DC2899",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:MovieQuiz.xcodeproj",
+        "identifier" : "4D1904CE2DEFAAC400931C90",
+        "name" : "MovieQuizViewControllerTests"
+      }
+    }
+  ],
+  "version" : 1
+}

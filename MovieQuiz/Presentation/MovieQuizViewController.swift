@@ -1,6 +1,17 @@
 import UIKit
 
-final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
+final class MovieQuizViewController: UIViewController, MovieQuizViewControllerProtocol {
+    
+    //MARK: - For protocol
+    
+    func show(quiz result: QuizResultsViewModel) {
+        // заглушка для протокола
+    }
+    
+    func highlightImageBorder(isCorrectAnswer: Bool) {
+        // заглушка для протокола
+    }
+    
     
     // MARK: - IB Outlets
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
@@ -11,13 +22,7 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
     @IBOutlet weak private var yesButton: UIButton!
     
     // MARK: - Properties
-    private var alertPresenter: AlertPresenter!
-    private var currentQuestionIndex = 0
-    private var correctAnswers = 0
-    private var questionFactory: QuestionFactoryProtocol?
-    private let questionsAmount: Int = 10
-    private var currentQuestion: QuizQuestion?
-    private var statisticService: StatisticServiceProtocol = StatisticServiceImplementation()
+    private var movieQuizPresener: MovieQuizPresenter!
     
     //MARK: - override Methods
     override func viewDidLoad() {
@@ -25,67 +30,38 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         //  Настройка UI
         image.layer.cornerRadius = image.frame.width / 20
         image.layer.masksToBounds = true
-        //        questionLabel.font = UIFont(name: "YS Display-Bold", size: 23)
         
         //  Инициализация сервисов
-        let moviesLoader = MoviesLoader()
-        statisticService = StatisticServiceImplementation()
-        alertPresenter = AlertPresenter(viewController: self)
-        questionFactory = QuestionFactory(moviesLoader: moviesLoader, delegate: self)
-        
-        //  Настройка QuestionFactory
-        questionFactory = QuestionFactory(
-            moviesLoader: moviesLoader,
-            delegate: self
-        )
+        movieQuizPresener = MovieQuizPresenter(viewController: self)
         
         //  Загрузка данных и начало работы
         showLoadingIndicator()
-        questionFactory?.loadData()
+        movieQuizPresener.questionFactory.loadData()
+        movieQuizPresener.viewController = self
     }
     
-    // MARK: - IB Actions
-    @IBAction func noButton(_ sender: Any) {
-        guard let currentQuestion = currentQuestion else {
-            return
-        }
-        showAnswerResult(isCorrect: !currentQuestion.correctAnswer)
+    // MARK: - IBActions
+    @IBAction private func yesButton (_ sender: UIButton) {
+        movieQuizPresener.yesButton()
     }
     
-    @IBAction func yesButton(_ sender: Any) {
-        guard let currentQuestion = currentQuestion else {
-            return
-        }
-        showAnswerResult(isCorrect: currentQuestion.correctAnswer)
-    }
-    
-    //MARK: - QuestionFactoryDelegate
-    
-    func didReceiveNextQuestion(question: QuizQuestion?) {
-        guard let question = question else {
-            return
-        }
-        currentQuestion = question
-        let viewModel = convert(model: question)
-        
-        DispatchQueue.main.async { [weak self] in
-            self?.show(quiz: viewModel)
-        }
+    @IBAction private func noButton (_ sender: UIButton) {
+        movieQuizPresener.noButton()
     }
     
     //MARK: - Private Methods
     
-    private func showLoadingIndicator() {
+    func showLoadingIndicator() {
         activityIndicator.isHidden = false
         activityIndicator.startAnimating()
     }
     
-    private func hideLoadingIndicator() {
+    func hideLoadingIndicator() {
         activityIndicator.isHidden = true
         activityIndicator.stopAnimating()
     }
     
-    private func showNetworkError(message: String) {
+    func showNetworkError(message: String) {
         hideLoadingIndicator()
         let alertModel = AlertModel(
             title: "Ошибка!",
@@ -94,9 +70,8 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
             completion: { [weak self] in
                 guard let self = self else { return }
                 
-                self.currentQuestionIndex = 0
-                self.correctAnswers = 0
-                self.questionFactory?.loadData()
+                self.movieQuizPresener.resetQuestionIndex()
+                self.movieQuizPresener.correctAnswers = 0
                 showLoadingIndicator()
             }
         )
@@ -104,122 +79,88 @@ final class MovieQuizViewController: UIViewController, QuestionFactoryDelegate {
         alertPresenter.show(alert: alertModel)
     }
     
-    private func convert(model: QuizQuestion) -> QuizStepViewModel {
-        let questionStep = QuizStepViewModel(
-            image: UIImage(data: model.image) ?? UIImage(),
-            question: model.text,
-            questionNumber: "\(currentQuestionIndex + 1)/\(questionsAmount)")
-        return questionStep
-    }
-    
-    private func show(quiz step: QuizStepViewModel) {
+    func show(quiz step: QuizStepViewModel) {
         image.image = step.image
         questionLabel.text = step.question
         counter.text = step.questionNumber
     }
     
-    private func showAnswerResult(isCorrect: Bool){
-        yesButton.isEnabled = false
-        noButton.isEnabled = false
-        
-        UIView.animate(withDuration: 0.3) {
-            self.yesButton.alpha = 0.5
-            self.noButton.alpha = 0.5
-        }
-        
+    // MARK: - Animations
+    func showAnswerFeedback(isCorrect: Bool) {
+        // удаление предыдущич анимаций
+        image.layer.removeAnimation(forKey: "borderAnimation")
         image.layer.borderWidth = 8
+        image.layer.borderColor = isCorrect ? UIColor.ypGreen.cgColor : UIColor.ypRed.cgColor
+    }
+
+    func fadeBorder(completion: @escaping () -> Void) {
+        // удаление предыдущие анимации
+        image.layer.removeAnimation(forKey: "fadeBorder")
         
-        if isCorrect {
-            UIView.animate(withDuration: 0.3,
-                           delay: 0,
-                           usingSpringWithDamping: 0.7,
-                           initialSpringVelocity: 0.2,
-                           options: []) {
-                self.image.transform = CGAffineTransform(scaleX: 1.05, y: 1.05)
-                self.image.layer.borderColor = UIColor.ypGreen.cgColor
-            } completion: { _ in
-                UIView.animate(withDuration: 0.2) {
-                    self.image.transform = .identity
-                }
+        // создание анимацию
+        let fadeAnimation = CABasicAnimation(keyPath: "borderColor")
+        fadeAnimation.fromValue = image.layer.borderColor
+        fadeAnimation.toValue = UIColor.clear.cgColor
+        fadeAnimation.duration = 0.7
+        fadeAnimation.timingFunction = CAMediaTimingFunction(name: .easeOut)
+        fadeAnimation.fillMode = .forwards
+        fadeAnimation.isRemovedOnCompletion = false
+        
+        CATransaction.begin()
+        CATransaction.setCompletionBlock {
+            self.image.layer.borderColor = UIColor.clear.cgColor
+            self.image.layer.removeAnimation(forKey: "fadeBorder")
+            completion()
+        }
+        
+        image.layer.add(fadeAnimation, forKey: "fadeBorder")
+        CATransaction.commit()
+    }
+
+    func resetImageBorder(animated: Bool, completion: (() -> Void)? = nil) {
+        if animated {
+            // задержка азтухания (оставил здесь т. к. анимация требует этого здесь)
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
+                self?.fadeBorder(completion: completion ?? {})
             }
-            
-            correctAnswers += 1
         } else {
-            let shake = CAKeyframeAnimation(keyPath: "transform.translation.x")
-            shake.values = [-5, 5, -5, 5, -3, 3, 0]
-            shake.duration = 0.4
-            image.layer.add(shake, forKey: "shake")
-            image.layer.borderColor = UIColor.ypRed.cgColor
-        }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
-            guard let self = self else { return }
-            
-            UIView.animate(withDuration: 0.4) {
-                self.yesButton.alpha = 1
-                self.noButton.alpha = 1
-            } completion: { _ in
-                self.yesButton.isEnabled = true
-                self.noButton.isEnabled = true
-            }
-            
-            UIView.animate(withDuration: 0.3) {
-                self.image.layer.borderColor = UIColor.clear.cgColor
-            }
-            self.showNextQuestionOrResult()
-        }
-    }
-    
-    private func showNextQuestionOrResult() {
-            yesButton.isEnabled = true
-            yesButton.alpha = 1
-            noButton.isEnabled = true
-            noButton.alpha = 1
             image.layer.borderColor = UIColor.clear.cgColor
-            
-            if currentQuestionIndex == questionsAmount - 1 {
-                statisticService.store(correct: correctAnswers, total: questionsAmount)
-                
-                let bestGame = statisticService.bestGame
-                let totalGames = statisticService.gamesCount
-                let totalAccuracy = statisticService.totalAccuracy
-                
-                let dateFormatter = DateFormatter()
-                dateFormatter.dateFormat = "dd.MM.yy HH:mm"
-                let dateString = dateFormatter.string(from: bestGame.date)
-                
-                let alertModel = AlertModel(
-                    title: "Этот раунд окончен!",
-                    message: """
-                        Ваш результат: \(correctAnswers)/\(questionsAmount)
-                        Количество сыгранных квизов: \(totalGames)
-                        Рекорд: \(bestGame.correct)/\(bestGame.total) (\(dateString))
-                        Средняя точность: \(String(format: "%.1f", totalAccuracy))%
-                        """,
-                    buttonText: "Сыграть ещё раз",
-                    completion: { [weak self] in
-                        self?.currentQuestionIndex = 0
-                        self?.correctAnswers = 0
-                        self?.questionFactory?.requestNextQuestion()
-                    }
-                )
-                alertPresenter.show(alert: alertModel)
-            } else {
-                currentQuestionIndex += 1
-                questionFactory?.requestNextQuestion()
+            completion?()
+        }
+    }
+
+    func animateCorrectAnswer(completion: @escaping () -> Void) {
+        UIView.animate(withDuration: 0.3,
+                       delay: 0,
+                       usingSpringWithDamping: 0.7,
+                       initialSpringVelocity: 0.2,
+                       options: []) {
+            self.image.transform = CGAffineTransform(scaleX: 1.05, y: 1.05)
+        } completion: { _ in
+            UIView.animate(withDuration: 0.2) {
+                self.image.transform = .identity
+                completion()
             }
         }
-    
-    //MARK: - Publick methods
-    func didFailToLoadData(with error: Error) {
-        hideLoadingIndicator()
-        showNetworkError(message: error.localizedDescription)
+    }
+
+    func animateWrongAnswer(completion: @escaping () -> Void) {
+        let shake = CAKeyframeAnimation(keyPath: "transform.translation.x")
+        shake.values = [-5, 5, -5, 5, -3, 3, 0]
+        shake.duration = 0.4
+        
+        CATransaction.begin()
+        CATransaction.setCompletionBlock(completion)
+        image.layer.add(shake, forKey: "shake")
+        CATransaction.commit()
     }
     
-    func didLoadDataFromServer() {
-        hideLoadingIndicator()
-        questionFactory?.requestNextQuestion()
-    }
+    func setButtonsEnabled(_ enabled: Bool) {
+           yesButton.isEnabled = enabled
+           noButton.isEnabled = enabled
+           yesButton.alpha = enabled ? 1 : 0.5
+           noButton.alpha = enabled ? 1 : 0.5
+       }
     
     //MARK: - ViewModels
     

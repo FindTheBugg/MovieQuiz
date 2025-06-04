@@ -4,12 +4,12 @@
 <dict>
 	<key>SchemeUserState</key>
 	<dict>
-		<key>Copy of MovieQuiz.xcscheme</key>
+		<key>MovieQuiz.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>0</integer>
 		</dict>
-		<key>MovieQuiz.xcscheme_^#shared#^_</key>
+		<key>MovieQuizViewControllerTests.xcscheme_^#shared#^_</key>
 		<dict>
 			<key>orderHint</key>
 			<integer>1</integer>
@@ -17,12 +17,7 @@
 	</dict>
 	<key>SuppressBuildableAutocreation</key>
 	<dict>
-		<key>4D0E13692DE4D6AB007D5A96</key>
-		<dict>
-			<key>primary</key>
-			<true/>
-		</dict>
-		<key>4D3733F02DECEC2E00C542C4</key>
+		<key>4D1904CE2DEFAAC400931C90</key>
 		<dict>
 			<key>primary</key>
 			<true/>
